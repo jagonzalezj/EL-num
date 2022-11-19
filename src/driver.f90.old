@@ -1,0 +1,269 @@
+!====================================================================
+! NUMODIS - FORTRAN Driver
+!--------------------------------------------------------------------
+! Authors: Laurent and Javier
+!====================================================================
+program driver
+
+  ! import numodis as a fortran module
+  use libnumodis
+
+  ! need c binding to perform data exchange with numodis
+  use iso_c_binding, only: c_int, c_char, c_double
+
+  ! what else?
+  implicit none
+
+  ! variable declaration
+  integer :: argc
+  character(kind=c_char), dimension(:), allocatable, target :: argv
+
+  integer :: i,j, nsteps, fsnapshot, isnapshot
+  double precision :: time0, time1, dtime, actualdtime, vmax, dmax, actualdmax
+  type(Fnumodis) :: numodis
+  integer :: nGpoints
+  integer :: nGrains
+  integer, dimension(:), allocatable :: shift
+
+  double precision, dimension(:), allocatable :: points
+  double precision, dimension(:), allocatable :: pts
+  double precision, dimension(12) :: stress
+  double precision, dimension(6) :: displ
+  double precision, dimension(:), allocatable:: str_gpoints
+  double precision, dimension(6) :: str
+  
+  !----------------------------------------------------------------------------
+  ! read arguments and return those dedicated to numodis (= all at this point)
+  !----------------------------------------------------------------------------
+  call getNumodisArguments(argc,argv)
+
+  !-----------------------
+  ! create Numodis object
+  !-----------------------
+
+  numodis = Fnumodis(argc,argv)
+
+  nsteps = numodis%getNstep()
+
+  fsnapshot = numodis%getSaveFrequency()
+
+  time0 = numodis%getTime()
+
+  dtime = numodis%getDTime()
+
+  dmax = numodis%getDmax()
+  
+  write(*,*) "From driver: number of steps ", nsteps
+
+  !--------------------------------------
+  ! general loop over all the time steps
+  !--------------------------------------
+  allocate(pts(6))
+  do i = 1, nsteps
+
+     ! display
+     write(*,*) '=================='
+     write(*,*) ' loop #', i
+     write(*,*) '=================='
+
+     !--------------------------
+     ! compute the nodal forces
+     !--------------------------
+
+     ! get the number of Gauss points
+     call numodis%exportNumberDislocationGaussPoints(5,nGpoints,nGrains)
+
+     ! construct the Gauss points containers
+     allocate(shift(nGrains))
+     allocate(points(3*nGpoints))
+     
+     ! get the Gauss points on the dislocations
+     call numodis%exportDislocationGaussPoints(5,nGpoints,shift,points)
+
+     write(*,*) "Number of Gauss points", nGpoints
+     do j = 0,nGpoints-1
+        write(*,*) '#', j, '[ ', points(3*j+1),' ', points(3*j+2),' ',points(3*j+3), ']'
+     end do
+
+     ! preparing points
+
+     pts(1)=1.0
+     pts(2)=4000.0
+     pts(3)=-1000.0
+     pts(4)=0.0
+     pts(5)=-4000.0
+     pts(6)=6.0
+
+     ! getting stress a these points
+     
+     !call numodis%exportInternalStressFieldOnNodes(2,pts,stress)
+     allocate(str_gpoints(nGpoints*6))
+     call numodis%exportInternalStressFieldOnNodes(nGpoints,points,str_gpoints)
+
+     write (*,*) "geting stress values"
+     do j = 0,nGpoints
+        write(*,*) j, '[' ,str_gpoints(j*6+1),'', str_gpoints(j*6+2),'', str_gpoints(j*6+3),&
+             '',str_gpoints(j*6+4),'',str_gpoints(j*6+5),'',str_gpoints(j*6+6),']' 
+     end do
+     
+     ! getting displacement at same points
+
+     call numodis%exportDisplacementFieldOnNodes(2,pts,displ)
+     write (*,*) "geting displacement  values"
+     do j = 0,1
+        write(*,*) j, '[' ,displ(j*3+1),'',displ(j*3+2),'', displ(j*3+3),']' 
+     end do
+          
+     ! reset the nodal forces
+     call numodis%ResetNodalForces()
+
+     ! compute applied stress forces
+     call numodis%computeAppliedForces()
+     
+     ! compute the internal forces (elastic + core)
+     call numodis%computeInternalForces()
+     
+     ! generating stress on dislocations
+     str(1)=200.0
+     str(2)=0.0
+     str(3)=0.0
+     str(4)=0.0
+     str(5)=0.0
+     str(6)=0.0
+
+     !allocate(str_gpoints(nGpoints*6))
+     do j = 1,nGpoints
+        str_gpoints(6*(j-1)+1) = str_gpoints(6*(j-1)+1) + str(1)
+        str_gpoints(6*(j-1)+2) = str_gpoints(6*(j-1)+2) + str(2)
+        str_gpoints(6*(j-1)+3) = str_gpoints(6*(j-1)+3) + str(3)
+        str_gpoints(6*(j-1)+4) = str_gpoints(6*(j-1)+4) + str(4)
+        str_gpoints(6*(j-1)+5) = str_gpoints(6*(j-1)+5) + str(5)
+        str_gpoints(6*(j-1)+6) = str_gpoints(6*(j-1)+6) + str(6)        
+     end do
+
+     write (*,*) "Applied stress + internal stress on Gauss"
+     do j = 1,nGpoints
+        write(*,*) j, '[' ,str_gpoints((j-1)*6+1),'', str_gpoints((j-1)*6+2),'', str_gpoints((j-1)*6+3), &
+             '',str_gpoints((j-1)*6+4),'',str_gpoints((j-1)*6+5),'',str_gpoints((j-1)*6+6),']' 
+     end do
+
+     call numodis%importStressFieldOnDislocations(5,shift,str_gpoints)
+     deallocate(str_gpoints)
+     
+     ! add lattice resistance to nodal forces
+     call numodis%computeFrictionForces()
+     
+     !------------------------------
+     ! compute the nodal velocities
+     !------------------------------
+     vmax = 0.0
+     call numodis%computeVelocities(vmax)
+
+     !---------------------
+     ! update current time
+     !---------------------
+     actualdtime = dtime
+     if( vmax > 0.0 ) then
+        actualdtime = min( dmax/vmax, dtime )    
+     end if
+     time1 = time0 + actualdtime
+     
+     call numodis%setTime(time1)
+  
+     !---------------------------
+     ! maximum node displacement
+     !---------------------------
+     actualdmax = min( dmax, vmax*actualdtime )
+
+     !----------------
+     ! move the nodes
+     !----------------
+     call numodis%moveNodes(actualdtime,actualdmax)
+     
+     !---------------------
+     ! line discretization
+     !---------------------
+     call numodis%remesh()
+     
+     !--------------------------------------------------------
+     ! pass the strain increment to the stress/strain control
+     !--------------------------------------------------------
+     call numodis%assignPlasticStrainIncrement()
+     
+     !--------------
+     ! clean graphs
+     !--------------
+     call numodis%cleanGraphs()
+     
+     !-----------------------------------------------------------
+     ! set new tags on all the nodes and lines of the simulation
+     !-----------------------------------------------------------
+     call numodis%renumber()
+    
+     ! save current configuration if needed
+     if( mod(i,fsnapshot) == 0 ) then        
+        isnapshot = i / fsnapshot        
+        call numodis%Save(isnapshot,i)
+     end if
+
+     time0 = time1
+     
+     write(*,*) 'time = ', time1, ' (ns) time step = ', actualdtime, ' (ns)'
+     write(*,*)
+
+     deallocate(shift)
+     deallocate(points)     
+     
+     
+     
+  end do
+
+
+
+
+
+
+  
+contains
+
+  
+  !====================================================================
+  ! subroutine getNumodisArguments
+  !--------------------------------------------------------------------
+  ! return the input arguments for Numodis
+  !====================================================================
+  subroutine getNumodisArguments(argc,argv)
+    use iso_c_binding
+    implicit none
+    integer :: argc
+    character(kind=c_char), dimension(:), allocatable :: argv
+    integer i, j, len, status
+    character c*100
+
+    ! number of arguments including executable itself
+    argc = command_argument_count() + 1
+
+    write(*,*) 'number of arguments [argc] = ', argc
+
+    allocate(argv(80*argc))
+
+    ! capture and store all the arguments
+    do i = 0, argc-1
+
+       call get_command_argument(i, c, len, status)
+
+       write(*,*) '   - argument = ', c
+
+       do j = 1, len        
+          argv(80*i+j) = c(j:j)
+       end do
+
+    end do
+
+    return
+  end subroutine getNumodisArguments
+
+
+  
+end program driver
+

@@ -1,0 +1,43 @@
+======================================================================================================
+         Numodis coupling with finite element code ELMER using the superposition principle
+======================================================================================================
+
+In this version, numodis itself is compiled from scratch in the build directory of the coupling.
+As a consequence, it does not require priori compilation of numodis and is therefore more convenient
+for development and debugging.
+
+Here are the steps to build this coupling driver:
+
+- create a build directory:     [numodis4elmer] mkdir build
+
+- go into this build directory: [numodis4elmer] cd build
+
+- prepare compilation:          [build] cmake .. -DNUMODIS_DIR=[ABSOLUTE PATH TO NUMODIS] -DELMER_DIR=[ABSOLUTE PATH TO ELMER]
+
+- compile:                      [build] make
+
+This should produce a file called libNumodisCoupling.so located in this build directory. You may
+then use this file:
+
+- by copying it in the input directory of your calculation
+
+or
+
+- by setting appropriate link by setting the environment variable PATH2LIBNUMODISCOUPLING
+  [...]  export PATH2LIBNUMODISCOUPLING = PATH_TO_THIS_BUILD_DIRECTORY
+
+  or
+
+  [...]  setenv PATH2LIBNUMODISCOUPLING [ABSOLUTE PATH TO YOUR numodis4elmer/build DIRECTORY]
+
+  depending, of course, on your shell.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!     ABOUT LAPACK     !!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+In this example, Intel's MKL is the default version of LAPACK. You may nevertheless
+specify any version of LAPACK by using the following pre-compilation command:
+
+	[build] cmake .. -DNUMODIS_DIR=[ABSOLUTE PATH TO NUMODIS] -DELMER_DIR=[ABSOLUTE PATH TO ELMER]
+	                 -DUSE_MKL=OFF -DLAPACKHOME=[ABSOLUTE PATH TO LAPACK]

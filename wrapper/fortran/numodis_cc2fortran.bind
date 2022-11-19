@@ -1,0 +1,331 @@
+  interface
+
+     function init_numodis_cc(argc, argv) bind(C, name="init_numodis")
+       use iso_c_binding
+       implicit none
+       type(c_ptr) :: init_numodis_cc
+       integer(c_int), intent(in), value :: argc
+       type(c_ptr), dimension(argc) :: argv
+     end function init_numodis_cc
+
+     subroutine destroy_numodis_cc(tnumodis) bind(C, name="destroy_numodis")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+     end subroutine destroy_numodis_cc
+
+     subroutine numodis_initialize_cc(tnumodis) bind(C, name="numodis_initialize")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+     end subroutine numodis_initialize_cc
+     
+!!$     function numodis_getNstep_cc(tnumodis) bind(C, name="numodis_getNstep")
+!!$       use iso_c_binding
+!!$       implicit none
+!!$       integer(c_int) :: numodis_getNstep_cc
+!!$       type(c_ptr), intent(in), value :: tnumodis
+!!$     end function numodis_getNstep_cc
+
+     function numodis_getSaveFrequency_cc(tnumodis) bind(C, name="numodis_getSaveFrequency")
+       use iso_c_binding
+       implicit none
+       integer(c_int) :: numodis_getSaveFrequency_cc
+       type(c_ptr), intent(in), value :: tnumodis
+     end function numodis_getSaveFrequency_cc
+
+     function numodis_getTime_cc(tnumodis) bind(C, name="numodis_getTime")
+       use iso_c_binding
+       implicit none
+       real(c_double) :: numodis_getTime_cc
+       type(c_ptr), intent(in), value :: tnumodis
+     end function numodis_getTime_cc
+
+     subroutine numodis_compute_cc(tnumodis,step) bind(C, name="numodis_compute")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       integer(c_int), value :: step
+     end subroutine numodis_compute_cc
+
+     subroutine numodis_Save_cc(tnumodis, insave) bind(C, name="numodis_Save")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       integer(c_int), value :: insave
+     end subroutine numodis_Save_cc
+
+     subroutine numodis_computeAppliedForces_cc(tnumodis,step) bind(C, name="numodis_computeAppliedForces")
+       use iso_c_binding
+       implicit   none
+       type(c_ptr), value :: tnumodis
+       integer(c_int), value :: step
+     end subroutine numodis_computeAppliedForces_cc
+
+     subroutine numodis_computeCoreForces_cc(tnumodis) bind(C, name="numodis_computeCoreForces")
+       use iso_c_binding
+       implicit   none
+       type(c_ptr), value :: tnumodis
+     end subroutine numodis_computeCoreForces_cc
+
+     subroutine numodis_computeFrictionForces_cc(tnumodis) bind(C, name="numodis_computeFrictionForces")
+       use iso_c_binding
+       implicit   none
+       type(c_ptr), value :: tnumodis
+     end subroutine numodis_computeFrictionForces_cc
+
+     subroutine numodis_computeVelocities_cc(tnumodis, vmax) bind(C, name="numodis_computeVelocities")
+       use iso_c_binding
+       implicit   none
+       type(c_ptr), value :: tnumodis
+       real(c_double), value :: vmax
+     end subroutine numodis_computeVelocities_cc
+
+     subroutine numodis_cleanGraphs_cc(tnumodis) bind(C, name="numodis_cleanGraphs")
+       use iso_c_binding
+       implicit   none
+       type(c_ptr), value :: tnumodis
+     end subroutine numodis_cleanGraphs_cc
+
+     subroutine numodis_renumber_cc(tnumodis) bind(C, name="numodis_renumber")
+       use iso_c_binding
+       implicit   none
+       type(c_ptr), value :: tnumodis
+     end subroutine numodis_renumber_cc
+
+     subroutine numodis_computeInternalForces_cc(tnumodis) bind(C, name="numodis_computeInternalForces")
+       use iso_c_binding
+       implicit   none
+       type(c_ptr), value :: tnumodis
+     end subroutine numodis_computeInternalForces_cc
+
+     subroutine numodis_moveNodes_cc(tnumodis, dtime, dmax) bind(C, name="numodis_moveNodes")
+       use iso_c_binding
+       implicit   none
+       type(c_ptr), value :: tnumodis
+       real(c_double), value :: dtime
+       real(c_double), value :: dmax
+     end subroutine numodis_moveNodes_cc
+
+     subroutine numodis_remesh_cc(tnumodis) bind(C, name="numodis_remesh")
+       use iso_c_binding
+       implicit   none
+       type(c_ptr), value :: tnumodis
+     end subroutine numodis_remesh_cc
+
+     subroutine numodis_assignPlasticStrainInc_cc(tnumodis) &
+          bind(C, name="numodis_assignStrain")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+     end subroutine numodis_assignPlasticStrainInc_cc
+
+     subroutine numodis_ResetNodalForces_cc(tnumodis) bind(C, name="numodis_ResetNodalForces")
+       use iso_c_binding
+       implicit   none
+       type(c_ptr), value :: tnumodis
+     end subroutine numodis_ResetNodalForces_cc
+
+     function numodis_saveStress_cc(tnumodis) bind(C, name="numodis_saveStress")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       logical(c_bool) :: numodis_saveStress_cc
+     end function numodis_saveStress_cc
+     
+     subroutine numodis_exportInternalStressFieldOnNodes_cc(tnumodis, npts, pts, stress) &
+          bind(C, name="numodis_exportInternalStressFieldOnNodes")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       integer(c_int), value, intent(in) :: npts
+       real(kind=c_double), intent(in) :: pts(*)
+       real(kind=c_double), intent(out) :: stress(*)
+     end subroutine numodis_exportInternalStressFieldOnNodes_cc
+
+     subroutine numodis_exportDisplacementFieldOnNodes_cc(tnumodis, npts, pts, displ) &
+          bind(C, name="numodis_exportDisplacementFieldOnNodes")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       integer(c_int), value, intent(in) :: npts
+       real(kind = c_double), intent(in) :: pts(*)
+       real(kind = c_double), intent(out) :: displ(*)
+     end subroutine numodis_exportDisplacementFieldOnNodes_cc
+
+     subroutine numodis_exportNumberDislocationGaussPoints_cc(tnumodis, nGauss, npts, nGrains) &
+          bind(C, name="numodis_exportNumberDislocationGaussPoints")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       integer(c_int), value, intent(in) :: nGauss
+       integer(c_int), intent(out) :: npts
+       integer(c_int), intent(out) :: nGrains
+     end subroutine numodis_exportNumberDislocationGaussPoints_cc
+     
+     subroutine numodis_exportDislocationGaussPoints_cc(tnumodis, nGauss, nshift, shift, npts, pts) &
+          bind(C, name="numodis_exportDislocationGaussPoints")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       integer(c_int), value, intent(in) :: nGauss
+       integer(c_int), value, intent(in) :: nshift
+       integer(c_int), intent(out) :: shift(*)
+       integer(c_int), value, intent(in) :: npts
+       real(kind = c_double), intent(out) :: pts(*)
+     end subroutine numodis_exportDislocationGaussPoints_cc
+
+     subroutine numodis_importStressFieldOnDislocations_cc(tnumodis, nGauss, shift, stress) &
+          bind(C, name="numodis_importStressFieldOnDislocations")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       integer(c_int), value, intent(in) :: nGauss
+       integer(kind = c_int), intent(in) :: shift(*)
+       real(kind = c_double), intent(in) :: stress(*)
+     end subroutine numodis_importStressFieldOnDislocations_cc
+
+     function numodis_getDmax_cc(tnumodis) bind(C, name="numodis_getDmax")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       real(c_double) :: numodis_getDmax_cc       
+     end function numodis_getDmax_cc
+
+     function numodis_getDTime_cc(tnumodis) bind(C, name="numodis_getDTime")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       real(c_double) :: numodis_getDTime_cc       
+     end function numodis_getDTime_cc
+
+     subroutine numodis_setTime_cc(tnumodis,time) bind(C, name="numodis_setTime")
+       use iso_c_binding
+       implicit none       
+       type(c_ptr), value :: tnumodis
+       real(c_double), intent(in) :: time       
+     end subroutine numodis_setTime_cc
+
+!!$     subroutine numodis_OpenSIGEPS_cc(tnumodis) bind(C, name="numodis_OpenSIGEPS")
+!!$       use iso_c_binding
+!!$       implicit none
+!!$       type(c_ptr), value :: tnumodis
+!!$     end subroutine numodis_OpenSIGEPS_cc
+!!$
+!!$     subroutine numodis_PrintSIGEPS_cc(tnumodis, step) bind(C, name="numodis_PrintSIGEPS")
+!!$       use iso_c_binding
+!!$       implicit none
+!!$       type(c_ptr), value :: tnumodis
+!!$       integer(c_int), value :: step
+!!$     end subroutine numodis_PrintSIGEPS_cc
+!!$
+!!$     subroutine numodis_CloseSIGEPS_cc(tnumodis) bind(C, name="numodis_CloseSIGEPS")
+!!$       use iso_c_binding
+!!$       implicit none
+!!$       type(c_ptr), value :: tnumodis
+!!$     end subroutine numodis_CloseSIGEPS_cc
+
+     subroutine numodis_OpenData_cc(tnumodis) bind(C, name="numodis_OpenData")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+     end subroutine numodis_OpenData_cc
+
+     subroutine numodis_PrintData_cc(tnumodis, step) bind(C, name="numodis_PrintData")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       integer(c_int), value :: step
+     end subroutine numodis_PrintData_cc
+
+     subroutine numodis_CloseData_cc(tnumodis) bind(C, name="numodis_CloseData")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+     end subroutine numodis_CloseData_cc
+
+     subroutine numodis_nucleateDislocation_cc(tnumodis, center, length) bind(C, name="numodis_nucleateDislocation")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       real(kind = c_double), intent(in) :: center(*)
+       real(kind = c_double), intent(in), value :: length
+     end subroutine numodis_nucleateDislocation_cc
+
+     subroutine numodis_nucleateLoop_cc(tnumodis, center, radius, plane, burgers) bind(C, name="numodis_nucleateLoop")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       real(kind = c_double), intent(in) :: center(*)
+       real(kind = c_double), intent(in), value :: radius
+       integer(kind = c_int), intent(in) :: plane(*)
+       integer(kind = c_int), intent(in) :: burgers(*)       
+     end subroutine numodis_nucleateLoop_cc
+     
+     subroutine numodis_exportXminXmax_cc(tnumodis,xmin,xmax) bind(C, name="numodis_exportXminXmax")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       real(kind = c_double), intent(out) :: xmin(*)
+       real(kind = c_double), intent(out) :: xmax(*)       
+     end subroutine numodis_exportXminXmax_cc
+
+     subroutine numodis_exportStressGrid_cc(tnumodis,xmin,xmax,npts) bind(C, name="numodis_exportStressGrid")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       real(kind = c_double), intent(out) :: xmin(*)
+       real(kind = c_double), intent(out) :: xmax(*)
+       integer(kind = c_int), intent(out) :: npts(*)       
+     end subroutine numodis_exportStressGrid_cc
+
+     subroutine numodis_exportPlasticStrain_cc(tnumodis,strain) bind(C, name="numodis_exportPlasticStrain")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       real(kind = c_double), intent(out) :: strain(*)
+     end subroutine numodis_exportPlasticStrain_cc
+
+     subroutine numodis_computeMirrorDislocations_cc(tnumodis,cutoff) bind(C,name="numodis_computeMirrorDislocations")
+       use iso_c_binding
+       implicit none;
+       type(c_ptr), value :: tnumodis
+       real(kind = c_double), intent(in), value :: cutoff
+     end subroutine numodis_computeMirrorDislocations_cc
+
+     subroutine numodis_printMirrorDislocations2VTK_cc(tnumodis, insave) bind(C, name="numodis_printMirrorDislocations2VTK")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       integer(c_int), value :: insave
+     end subroutine numodis_printMirrorDislocations2VTK_cc
+
+     subroutine numodis_computeMirrorForces_cc(tnumodis) bind(C, name="numodis_computeMirrorForces")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+     end subroutine numodis_computeMirrorForces_cc
+
+     subroutine numodis_addMirrorStressesOnNodes_cc(tnumodis, npts, pts, stress) &
+          bind(C, name="numodis_addMirrorStressesOnNodes")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       integer(c_int), value, intent(in) :: npts
+       real(kind=c_double), intent(in) :: pts(*)
+       real(kind=c_double), intent(out) :: stress(*)
+     end subroutine numodis_addMirrorStressesOnNodes_cc
+
+     subroutine numodis_getSaveDirectory_cc(tnumodis,fsize,filename) bind(C, name="numodis_getSaveDirectory")
+       use iso_c_binding
+       implicit none
+       type(c_ptr), value :: tnumodis
+       integer(c_int), intent(out) :: fsize 
+       character(kind=c_char), dimension(*) :: filename
+     end subroutine numodis_getSaveDirectory_cc
+     
+
+     
+  end interface
+
+
